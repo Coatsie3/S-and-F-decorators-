@@ -689,6 +689,7 @@ p{margin:0}
           </div>
           <div class="field full"><label for="f-area">Where on the island? <span>(optional)</span></label><input id="f-area" name="area" placeholder="e.g. St Brelade"></div>
           <div class="field full"><label for="f-msg">About the job</label><textarea id="f-msg" name="message" placeholder="Rooms, rough sizes, colours you have in mind, and when you'd like it done"></textarea></div>
+          <input type="text" name="website" id="f-web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
           <p class="err" id="err" hidden></p>
           <div class="field full"><button class="btn solid" type="submit" style="justify-self:start;align-self:flex-start">Send enquiry<svg class="arrow"><use href="#i-arrow"/></svg></button></div>
           <p class="note">By sending this form you agree to be contacted about your enquiry.</p>
@@ -966,8 +967,6 @@ addEventListener("load",()=>hasGsap&&ScrollTrigger.refresh());
 
 /* form */
 const form=document.getElementById("form"),err=document.getElementById("err");
-const FN_URL="https://ishqrqgtwaebjbmyyddl.supabase.co/functions/v1/send-contact-email";
-const ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzaHFycWd0d2FlYmpibXl5ZGRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1ODE3ODIsImV4cCI6MjA4NjE1Nzc4Mn0.599BUn4GUs9zFnVk4vY6M27yW_BzS3chy90qOY96IXs";
 form.addEventListener("submit",async e=>{
   e.preventDefault();
   const n=form.name.value.trim(),ph=form.phone.value.trim(),em=form.email.value.trim(),m=form.message.value.trim(),area=form.area.value.trim(),type=(form.querySelector('input[name="type"]:checked')||{}).value||"";
@@ -977,7 +976,7 @@ form.addEventListener("submit",async e=>{
   const btn=form.querySelector('button[type="submit"]');btn.disabled=true;const label=btn.innerHTML;btn.textContent="Sending...";
   const message="Type of work: "+type+(area?"\nLocation: "+area:"")+"\n\n"+m;
   try{
-    const r=await fetch(FN_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":ANON,"Authorization":"Bearer "+ANON},body:JSON.stringify({name:n,email:em,phone:ph,message})});
+    const r=await fetch("/api/quote",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,email:em,phone:ph,message,website:(form.website||{}).value||""})});
     if(!r.ok)throw new Error(r.status);
     document.getElementById("sentName").textContent=n.split(" ")[0];form.hidden=true;document.getElementById("sent").hidden=false;
   }catch(_){
